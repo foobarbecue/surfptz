@@ -91,7 +91,7 @@ class GpsTest(App):
         timestamp = datetime.now().isoformat()
         gps_data = json.dumps({timestamp : kwargs})
         requests.post(
-            url='https://surfptz-default-rtdb.firebaseio.com/.json',
+            url='https://10.128.0.1/',
             data=json.dumps(gps_data)
         )
 

@@ -1,6 +1,6 @@
 [app]
-title = Surfptz Tag
-package.name = surfptztag
+title = SurfptzXmit2Firebase
+package.name = SurfptzXmit2Firebase
 package.domain = org.test
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
