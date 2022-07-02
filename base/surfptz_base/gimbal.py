@@ -3,7 +3,9 @@ from time import sleep
 from gpiozero import LED
 from time import sleep
 
-class BescorGimbal(Gimbal):
+logger: Logger = logging.getLogger(__name__)
+
+class BescorGimbal:
     """
     This gimbal class is for use with this combination of products:
      - Bescor MP-101 Pan & Tilt Head
