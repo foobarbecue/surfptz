@@ -33,7 +33,7 @@ BoxLayout:
 '''
 
 
-class GpsTest(App):
+class SurfPtTagApp(App):
 
     gps_location = StringProperty()
     gps_status = StringProperty('Click Start to get GPS location updates')
