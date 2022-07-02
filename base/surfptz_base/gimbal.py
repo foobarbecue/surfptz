@@ -1,9 +1,7 @@
-from witmotion import IMU
-from time import sleep
-from gpiozero import LED
+import logging
 from time import sleep
 
-logger: Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 class BescorGimbal:
     """
@@ -20,20 +18,31 @@ class BescorGimbal:
         self.pitch_relays = [LED("BOARD35"), LED("BOARD37")]
         # TODO intelligently find IMU device path
         self.imu = IMU(path='/dev/rfcomm0', baudrate=115200)
-        self.update_interval: float = 0.1
+        self.update_interval: float = 0.5
+        self.target_reached: bool = True
+
+    def goto(
+            self,
+            yaw_angle: float,
+            pitch_angle: float,
+    ) -> None:
+        self.target_reached = False
+        while not self.target_reached:
+            # Check that there is IMU data when we command any movement
+            if self.imu.last_a:
+                logger.info(f"going to angle {yaw_angle}, {pitch_angle}")
+                self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
+            else:
+                logger.info(f"no imu data")
+                self.stop()
+            sleep(self.update_interval)
 
     # Only supports angle mode
     def control(
             self,
-            yaw_mode: ControlMode = ControlMode.speed,
-            yaw_speed: float = 0,
-            yaw_angle: float = 0,
-            pitch_mode: ControlMode = ControlMode.speed,
-            pitch_speed: float = 0,
-            pitch_angle: float = 0,
-            roll_mode: ControlMode = ControlMode.speed,
-            roll_speed: float = 0,
-            roll_angle: float = 0) -> None:
+            yaw_angle: float,
+            pitch_angle: float,
+    ) -> None:
         """
         Set the relays controlling the Bescor gimbal to the correct values to
         move towards desired yaw and pitch angle.
