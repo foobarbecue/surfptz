@@ -30,7 +30,6 @@ class BescorGimbal:
         while not self.target_reached:
             # Check that there is IMU data when we command any movement
             if self.imu.last_a:
-                logger.info(f"going to angle {yaw_angle}, {pitch_angle}")
                 self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
             else:
                 logger.info(f"no imu data")
@@ -47,13 +46,13 @@ class BescorGimbal:
         Set the relays controlling the Bescor gimbal to the correct values to
         move towards desired yaw and pitch angle.
         """
-        logger.info('Bescor control called')
+        logger.info(f'Going to yaw:{yaw_angle} pitch:{pitch_angle}')
 
         # Rename variables for clarity
         desired_yaw = yaw_angle
         desired_pitch = pitch_angle
 
-        z_angle = self.imu.get_angle()[2]
+        z_angle = self.imu.last_yaw
         z_err = z_angle - desired_yaw
         if abs(z_err) > self.deadband:
             if z_err > 0:
@@ -67,11 +66,11 @@ class BescorGimbal:
                 relay.off()
             logger.info(f'z error {z_err}, within deadband')
 
-        y_angle = self.imu.get_angle()[1]
+        y_angle = self.imu.last_pitch
         y_err = y_angle - desired_pitch
         if abs(y_err) > self.deadband:
             if y_err > 0:
-                self.yaw_relays[0].on()
+                self.pitch_relays[0].on()
                 logger.info(f'y error {y_err}, moving pitch0')
             else:
                 self.pitch_relays[1].on()
