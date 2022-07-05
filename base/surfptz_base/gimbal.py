@@ -65,6 +65,7 @@ class BescorGimbal:
             for relay in self.yaw_relays:
                 relay.off()
             logger.info(f'z error {z_err}, within deadband')
+            self.target_reached = True
 
         y_angle = self.imu.last_pitch
         y_err = y_angle - desired_pitch
