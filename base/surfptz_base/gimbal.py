@@ -19,15 +19,17 @@ class BescorGimbal:
         # TODO intelligently find IMU device path
         self.imu = IMU(path='/dev/rfcomm0', baudrate=115200)
         self.update_interval: float = 0.5
-        self.target_reached: bool = True
+        self.yaw_target_reached: bool = True
+        self.pitch_target_reached: bool = True
 
     def goto(
             self,
             yaw_angle: float,
             pitch_angle: float,
     ) -> None:
-        self.target_reached = False
-        while not self.target_reached:
+        self.yaw_target_reached = False
+        self.pitch_target_reached = False
+        while not (self.yaw_target_reached and self.pitch_target_reached):
             # Check that there is IMU data when we command any movement
             if self.imu.last_a:
                 self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
@@ -65,7 +67,7 @@ class BescorGimbal:
             for relay in self.yaw_relays:
                 relay.off()
             logger.info(f'z error {z_err}, within deadband')
-            self.target_reached = True
+            self.yaw_target_reached = True
 
         y_angle = self.imu.last_pitch
         y_err = y_angle - desired_pitch
@@ -80,6 +82,7 @@ class BescorGimbal:
             for relay in self.pitch_relays:
                 relay.off()
             logger.info(f'y error {y_err}, within deadband')
+            self.pitch_target_reached = True
 
     def stop(self) -> None:
         for relay in self.yaw_relays + self.pitch_relays:
