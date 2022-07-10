@@ -29,8 +29,12 @@ class BescorGimbal:
         self._imu_pitch_at_min = None
 
     def __del__(self):
-        self.imu.close()
+        logger.info('Stopping gimbal motion')
         self.stop()
+        logger.info('Freeing gimbal GPIOs')
+        [yr.close() for yr in self.yaw_relays + self.pitch_relays]
+        logger.info('Disconnecting from IMU')
+        self.imu.close()
 
     def initialize(self):
 
@@ -105,7 +109,7 @@ class BescorGimbal:
 
         y_angle = self.imu.last_pitch
         y_err = y_angle - desired_pitch
-        if abs(y_err) < self.deadband:
+        if abs(y_err) > self.deadband:
             if y_err > 0:
                 self.pitch_relays[0].on()
                 logger.info(f'y error {y_err}, moving pitch0')

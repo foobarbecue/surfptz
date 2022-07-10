@@ -1,0 +1,3 @@
+1. Set up with 350 facing the beach
+2. Set up with camera pointed away from RPi
+3. ...
