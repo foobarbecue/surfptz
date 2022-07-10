@@ -32,19 +32,9 @@ class BescorGimbal:
         self.stop()
 
     def initialize(self):
-        logger.info('initializing')
-        
-        # YAW
-        self.yaw_relays[1].on()
-        sleep(50)
-        self.yaw_relays[1].off()
-        self._imu_yaw_at_max_cw = self.imu.last_yaw
-        self.yaw_relays[0].on()
-        sleep(50)
-        self.yaw_relays[0].off()
-        self._imu_yaw_at_max_ccw = self.imu.last_yaw
-        
+
         # PITCH
+        logger.info('Finding pitch range')
         self.pitch_relays[0].on()
         sleep(20)
         self.pitch_relays[0].off()
@@ -53,6 +43,17 @@ class BescorGimbal:
         sleep(20)
         self.pitch_relays[1].off()
         self._imu_pitch_at_max = self.imu.last_pitch
+
+        # YAW
+        logger.info('Finding yaw range')
+        self.yaw_relays[1].on()
+        sleep(50)
+        self.yaw_relays[1].off()
+        self._imu_yaw_at_max_cw = self.imu.last_yaw
+        self.yaw_relays[0].on()
+        sleep(50)
+        self.yaw_relays[0].off()
+        self._imu_yaw_at_max_ccw = self.imu.last_yaw
 
     def goto(
             self,
@@ -103,8 +104,8 @@ class BescorGimbal:
 
         y_angle = self.imu.last_pitch
         y_err = y_angle - desired_pitch
-        if abs(y_err) > self.deadband:
-            if y_err < 0:
+        if abs(y_err) < self.deadband:
+            if y_err > 0:
                 self.pitch_relays[0].on()
                 logger.info(f'y error {y_err}, moving pitch0')
             else:
