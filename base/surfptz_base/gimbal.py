@@ -14,13 +14,45 @@ class BescorGimbal:
         from gpiozero import LED
         from witmotion import IMU
         self.deadband: float = 2
+        # CCW 345->0aka360->355 , CW 355->360aka0->345
         self.yaw_relays = [LED("BOARD31"), LED("BOARD33")]
+        # down, up
         self.pitch_relays = [LED("BOARD35"), LED("BOARD37")]
         # TODO intelligently find IMU device path
         self.imu = IMU(path='/dev/rfcomm0', baudrate=115200)
         self.update_interval: float = 0.5
         self.yaw_target_reached: bool = True
         self.pitch_target_reached: bool = True
+        self._imu_yaw_at_max_cw = None
+        self._imu_yaw_at_max_ccw = None
+        self._imu_pitch_at_max = None
+        self._imu_pitch_at_min = None
+
+    def __del__(self):
+        self.stop()
+
+    def initialize(self):
+        logger.info('initializing')
+        
+        # YAW
+        self.yaw_relays[1].on()
+        sleep(50)
+        self.yaw_relays[1].off()
+        self._imu_yaw_at_max_cw = self.imu.last_yaw
+        self.yaw_relays[0].on()
+        sleep(50)
+        self.yaw_relays[0].off()
+        self._imu_yaw_at_max_ccw = self.imu.last_yaw
+        
+        # PITCH
+        self.pitch_relays[0].on()
+        sleep(20)
+        self.pitch_relays[0].off()
+        self._imu_pitch_at_min = self.imu.last_pitch
+        self.pitch_relays[1].on()
+        sleep(20)
+        self.pitch_relays[1].off()
+        self._imu_pitch_at_max = self.imu.last_pitch
 
     def goto(
             self,
@@ -72,7 +104,7 @@ class BescorGimbal:
         y_angle = self.imu.last_pitch
         y_err = y_angle - desired_pitch
         if abs(y_err) > self.deadband:
-            if y_err > 0:
+            if y_err < 0:
                 self.pitch_relays[0].on()
                 logger.info(f'y error {y_err}, moving pitch0')
             else:
