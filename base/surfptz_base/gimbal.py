@@ -29,6 +29,7 @@ class BescorGimbal:
         self._imu_pitch_at_min = None
 
     def __del__(self):
+        self.imu.close()
         self.stop()
 
     def initialize(self):
