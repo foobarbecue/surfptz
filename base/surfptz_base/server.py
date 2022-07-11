@@ -1,16 +1,23 @@
+import logging
+
 from flask import Flask, Response, request, redirect, jsonify
+from gimbal import BescorGimbal
+from panasonic_camera import camera_manager
+app = Flask(__name__)
 
-app = Flask(__name__,
-            static_url_path='',
-            static_folder=Path(__file__).parent / 'server_static_folder')
+logging.basicConfig(level=logging.INFO)
 
+#camera_mgr = camera_manager.PanasonicCameraManager(identify_as='surfptz')
+#camera_mgr.start()
 
-@app.route('/')
-def index():
-    return redirect('index.html')
+@app.route('/api/initialize')
+def initialize():
+    gimbal.initialize()
+    return '', 204
 
 @app.route('/api/angle')
 def angle():
+    gimbal = BescorGimbal()
     if 'pan' not in request.args:
         return "Missing query parameter 'pan'", 400
     if 'tilt' not in request.args:
@@ -23,6 +30,6 @@ def angle():
         tilt_angle = int(request.args.get('tilt'))
     except ValueError:
         return "Query parameter 'tilt' should be a number", 400
-    logger.debug(f'angle pan={pan_angle} tilt={tilt_angle}')
-    cameraman_mode_manager.angle(pan_angle=pan_angle, tilt_angle=tilt_angle)
+    logging.debug(f'angle pan={pan_angle} tilt={tilt_angle}')
+    gimbal.goto(pitch_angle=tilt_angle, yaw_angle=pan_angle)
     return '', 204
