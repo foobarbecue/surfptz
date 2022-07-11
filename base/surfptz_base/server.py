@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
 
-#camera_mgr = camera_manager.PanasonicCameraManager(identify_as='surfptz')
-#camera_mgr.start()
+camera_mgr = camera_manager.PanasonicCameraManager(identify_as='surfptz')
+camera_mgr.start()
 
 @app.route('/api/initialize')
 def initialize():
@@ -32,4 +32,19 @@ def angle():
         return "Query parameter 'tilt' should be a number", 400
     logging.debug(f'angle pan={pan_angle} tilt={tilt_angle}')
     gimbal.goto(pitch_angle=tilt_angle, yaw_angle=pan_angle)
+    return '', 204
+
+@app.route('/api/zoom_in')
+def zoom_in_slow():
+    camera_mgr.camera.zoom_in_slow()
+    return '', 204
+    
+@app.route('/api/zoom_out')
+def zoom_out():
+    camera_mgr.camera.zoom_out_slow()
+    return '', 204
+
+@app.route('/api/zoom_stop')
+def zoom_stop():
+    camera_mgr.camera.zoom_stop()
     return '', 204
