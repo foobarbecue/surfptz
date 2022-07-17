@@ -1,5 +1,6 @@
 import logging
 from time import sleep
+import math
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -27,6 +28,8 @@ class BescorGimbal:
         self._imu_yaw_at_max_ccw = None
         self._imu_pitch_at_max = None
         self._imu_pitch_at_min = None
+        # hard-coded to san clemente for now
+        self._declination = 11.36
 
     def __del__(self):
         logger.info('Stopping gimbal motion')
@@ -127,4 +130,10 @@ class BescorGimbal:
             relay.off()
 
     def get_angles(self):
+        # TODO incorporate magnetometer
         return self.imu.get_angle()
+    
+    def get_bearing(self):
+        mag_bearing = math.atan2(mag_reading[0], mag_reading[1]) * 180 / math.pi
+        bearing = mag_bearing + self._declination
+        return bearing
