@@ -50,9 +50,17 @@ def zoom_stop():
     return '', 204
 
 @app.route('/api/start_recording')
-def video_recstart()
+def video_recstart():
     camera_mgr.camera.video_recstart()
     return '', 204
+
+@app.route('/api/set_declination')
+def set_declination():
+    raise NotImplementedError
+
+@app.route('/api/get_angles')
+def set_declination():
+    raise NotImplementedError
 
 @app.route('/api/relcoords')
 def relative_coordinates():
@@ -78,7 +86,7 @@ def relative_coordinates():
     except ValueError:
         return "Query parameter 'el' should be a number", 400
     logging.debug(f'northing={northing} easting={easting} elevation={elevation}')
-    gimbal.relative_coordinates(
+    gimbal.point_at_rel_coords(
         northing=northing, easting=easting, elevation=elevation
     )
     return '', 204

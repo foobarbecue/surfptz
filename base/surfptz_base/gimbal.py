@@ -133,7 +133,24 @@ class BescorGimbal:
         # TODO incorporate magnetometer
         return self.imu.get_angle()
     
-    def get_bearing(self):
-        mag_bearing = math.atan2(mag_reading[0], mag_reading[1]) * 180 / math.pi
-        bearing = mag_bearing + self._declination
-        return bearing
+    def set_declination(self):
+        raise NotImplementedError
+
+    @staticmethod
+    def _xy_to_az(x: float, y: float) -> float:
+        """
+        Given relative coordinates, return a 0 to 360 azimuth angle
+        """
+        az = math.degrees(math.atan2(y, x))
+        if az < 0:
+            az += 360
+        return az
+
+    def point_at_rel_coords(self, northing: float, easting: float, elevation: float) -> None:
+        yaw_angle = self._xy_to_az(x=easting, y=northing)
+        yaw_angle -= self._declination
+        if yaw_angle < 0:
+            yaw_angle += 360
+        distance = math.sqrt(northing ** 2 + easting ** 2 + elevation ** 2)
+        pitch_angle = math.asin(elevation / distance)
+        self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
