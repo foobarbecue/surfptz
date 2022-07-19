@@ -59,8 +59,9 @@ def set_declination():
     raise NotImplementedError
 
 @app.route('/api/get_angles')
-def set_declination():
-    raise NotImplementedError
+def get_angles():
+    angles = gimbal.get_angles()
+    return f"{angles}", 200
 
 @app.route('/api/relcoords')
 def relative_coordinates():

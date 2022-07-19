@@ -1,3 +1,6 @@
+##2022-07-18
+Startup procedure should be: initialize, initialization leaves camera pointed at middle of range. Then user rotates tripod head until hard stop is away from beach.
+
 ##2022-07-09
 Looking at Bescor yaw range & initialization. Clockwise, (yaw_relays[0] direction) it hits a hard stop at 345 deg. Counterclockwise, it goes past 360 and hits a hard stop around 355. A full rotation at max speed takes about 46 seconds.
 

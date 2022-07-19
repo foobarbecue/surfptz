@@ -153,4 +153,4 @@ class BescorGimbal:
             yaw_angle += 360
         distance = math.sqrt(northing ** 2 + easting ** 2 + elevation ** 2)
         pitch_angle = math.asin(elevation / distance)
-        self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
+        self.goto(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
