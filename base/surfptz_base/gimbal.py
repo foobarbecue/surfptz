@@ -30,6 +30,7 @@ class BescorGimbal:
         self._imu_pitch_at_min = None
         # hard-coded to san clemente for now
         self._declination = 11.36
+        self._origin_latlon = None
 
     def __del__(self):
         logger.info('Stopping gimbal motion')
@@ -62,6 +63,9 @@ class BescorGimbal:
         sleep(50)
         self.yaw_relays[0].off()
         self._imu_yaw_at_max_ccw = self.imu.last_yaw
+
+    def set_origin(self, lat, lon):
+        self._origin_latlon = (lat, lon)
 
     def goto(
             self,

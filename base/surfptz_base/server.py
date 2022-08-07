@@ -91,3 +91,27 @@ def relative_coordinates():
         northing=northing, easting=easting, elevation=elevation
     )
     return '', 204
+
+@app.route('/api/set_origin')
+def set_origin():
+    if 'lat' not in request.args:
+        return "Missing query parameter 'lat'", 400
+    if 'lon' not in request.args:
+        return "Missing query parameter 'lon'", 400
+
+    try:
+        lat = float(request.args.get('lat'))
+    except ValueError:
+        return "Query parameter 'lat' should be a number", 400
+    try:
+        lon = float(request.args.get('lon'))
+    except ValueError:
+        return "Query parameter 'lon' should be a number", 400
+    logging.debug(f'lat={lat} lon={lon}')
+    
+    gimbal.set_origin(lat=lat, lon=lon)
+    return '', 204
+
+@app.route('/api/abscoords')
+def absolute_coordinates():
+    return NotImplementedError

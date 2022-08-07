@@ -21,9 +21,13 @@ class SurfptzTagApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.dest_addr = None
+        self._latest_latlon = None
     
     def set_dest_addr(self, dest):
         self.dest_addr = self.dest_addrs[dest]
+    
+    def set_origin(self):
+        requests.post(url='http://10.128.0.1/api/set_origin', data=self._latest_latlon)
     
     def request_android_permissions(self):
         """
@@ -79,6 +83,7 @@ class SurfptzTagApp(App):
     def on_location(self, **kwargs):
         self.gps_location = '\n'.join([
             '{}={}'.format(k, v) for k, v in kwargs.items()])
+        self._latest_latlon = (kwargs['lat'], kwargs['lon'])
         timestamp = datetime.now().isoformat()
         gps_data = json.dumps({timestamp : kwargs})
         if self.dest_addr:
