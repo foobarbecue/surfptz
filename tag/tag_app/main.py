@@ -6,13 +6,14 @@ from kivy.clock import mainthread
 from kivy.utils import platform
 import requests
 import json
+from pyproj import Transformer
 from datetime import datetime
 
 
 class SurfptzTagApp(App):
 
     gps_location = StringProperty()
-    gps_status = StringProperty('Click Start to get GPS location updates')
+    gps_status = StringProperty('Origin not set')
     dest_addrs = {
         'Base': 'http://10.128.0.1/api/relcoords',
         'Firebase': 'https://surfptz-default-rtdb.firebaseio.com/.json'
@@ -21,7 +22,34 @@ class SurfptzTagApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.dest_addr = None
+        self.origin_latlon = None
+        self.latest_latlon = None
+        self.relcoords = None
     
+    def set_origin(self):
+        self.origin_latlon = self.latest_latlon
+        self.gps_status = f'Origin is: {self.latest_latlon}'
+    
+    def calculate_relcoords(self):
+        """
+        Determine the N, E offset in meters from origin_latlon to latest_latlon
+        """
+
+        # Todo cache this Transformer instead of creating every time
+        xfrmr = Transformer(4326,f"+proj=tmerc +lat_0={self.origin_latlon[0]}"
+                                f" +lon_0={self.origin_latlon[1]}")
+
+        # Convert origin to transverse mercator centered on origin
+        origin_m = xfrmr(*self.origin_latlon)
+        
+        # Convert latest_latlon to same
+        latest_m = xfrmr(*self.latest_latlon)
+        
+        # Subtract them
+        self.relcoords = (origin_m[0] - latest_m[0], origin_m[1] - latest_m[1])
+        return self.relcoords
+
+
     def set_dest_addr(self, dest):
         self.dest_addr = self.dest_addrs[dest]
     
@@ -81,6 +109,10 @@ class SurfptzTagApp(App):
             '{}={}'.format(k, v) for k, v in kwargs.items()])
         timestamp = datetime.now().isoformat()
         gps_data = json.dumps({timestamp : kwargs})
+        self.latest_latlon = (kwargs['lat'], kwargs['lon'])
+        if not self.origin_latlon:
+            self.set_origin()
+        self.calculate_relcoords()
         if self.dest_addr:
             requests.post(
                 url=self.dest_addr,

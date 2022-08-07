@@ -1,7 +1,6 @@
 #:kivy 2.1.0
 
 BoxLayout:
-#    XmitTo: XmitTo
     
     orientation: 'vertical'
 
@@ -11,6 +10,13 @@ BoxLayout:
     Label:
         text: app.gps_status
 
+    Label:
+        text: str(app.relcoords)
+
+    Button:
+        text: 'Set Origin'
+        on_press: app.set_origin()
+        
     BoxLayout:
         size_hint_y: None
         height: '48dp'
@@ -18,7 +24,6 @@ BoxLayout:
         Label:
             text: 'Xmit to'
         Spinner:
-#            id= 'XmitTo'
             text: 'None'
             values: 'None','Base','Firebase'
             on_text:

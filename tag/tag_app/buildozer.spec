@@ -1,11 +1,11 @@
 [app]
 title = SurfptzTagApp
-package.name = surfptzTagApp
+package.name = surfptzTagApps
 package.domain = org.test
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
-requirements = python3, kivy, plyer, android, requests, urllib3, chardet, idna, certifi
+requirements = pyproj,python3, kivy, plyer, android, requests, urllib3, chardet, idna, certifi
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION
