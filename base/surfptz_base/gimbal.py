@@ -1,6 +1,9 @@
 import logging
 from time import sleep
 import math
+from typing import Tuple
+
+from pyproj import Transformer
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -149,6 +152,25 @@ class BescorGimbal:
         if az < 0:
             az += 360
         return az
+    
+    @staticmethod
+    def calculate_relcoords(self, lat: float, lon: float) -> Tuple[float, float]:
+        """
+        Determine the N, E offset in meters from origin_latlon to latest_latlon
+        """
+
+        # Todo cache this Transformer instead of creating every time
+        xfrmr = Transformer(4326,f"+proj=tmerc +lat_0={self._origin_latlon[0]}"
+                                 f" +lon_0={self._origin_latlon[1]}")
+
+        # Convert origin to transverse mercator centered on origin
+        origin_m = xfrmr(*self._origin_latlon)
+
+        # Convert latest_latlon to same
+        new_m = xfrmr(lat, lon)
+
+        # Subtract them
+        return (origin_m[0] - new_m[0], origin_m[1] - new_m[1])
 
     def point_at_rel_coords(self, northing: float, easting: float, elevation: float) -> None:
         yaw_angle = self._xy_to_az(x=easting, y=northing)
@@ -158,3 +180,9 @@ class BescorGimbal:
         distance = math.sqrt(northing ** 2 + easting ** 2 + elevation ** 2)
         pitch_angle = math.asin(elevation / distance)
         self.goto(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
+
+    def point_at_abs_coords(self, lat: float, lon: float) -> None:
+        n, e = self.calculate_relcoords(lat=lat, lon=lon)
+        #TODO declination
+        #TODO elevation
+        self.point_at_rel_coords(northing=n, easting=e, elevation=0)
