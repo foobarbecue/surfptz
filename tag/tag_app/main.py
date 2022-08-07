@@ -7,34 +7,24 @@ from kivy.utils import platform
 import requests
 import json
 from datetime import datetime
-kv = '''
-BoxLayout:
-    orientation: 'vertical'
-
-    Label:
-        text: app.gps_location
-
-    Label:
-        text: app.gps_status
-
-    BoxLayout:
-        size_hint_y: None
-        height: '48dp'
-        padding: '4dp'
-
-        ToggleButton:
-            text: 'Start' if self.state == 'normal' else 'Stop'
-            on_state:
-                app.start(1000, 0) if self.state == 'down' else \
-                app.stop()
-'''
 
 
-class GpsTest(App):
+class SurfptzTagApp(App):
 
     gps_location = StringProperty()
     gps_status = StringProperty('Click Start to get GPS location updates')
-
+    dest_addrs = {
+        'Base': 'http://10.128.0.1/api/relcoords',
+        'Firebase': 'https://surfptz-default-rtdb.firebaseio.com/.json'
+    }
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.dest_addr = None
+    
+    def set_dest_addr(self, dest):
+        self.dest_addr = self.dest_addrs[dest]
+    
     def request_android_permissions(self):
         """
         Since API 23, Android requires permission to be requested at runtime.
@@ -75,8 +65,9 @@ class GpsTest(App):
         if platform == "android":
             print("gps.py: Android detected. Requesting permissions")
             self.request_android_permissions()
+            self.start(1000,0)
 
-        return Builder.load_string(kv)
+        return Builder.load_file('SurfptzTag.kv')
 
     def start(self, minTime, minDistance):
         gps.start(minTime, minDistance)
@@ -90,10 +81,11 @@ class GpsTest(App):
             '{}={}'.format(k, v) for k, v in kwargs.items()])
         timestamp = datetime.now().isoformat()
         gps_data = json.dumps({timestamp : kwargs})
-        requests.post(
-            url='https://10.128.0.1/',
-            data=json.dumps(gps_data)
-        )
+        if self.dest_addr:
+            requests.post(
+                url=self.dest_addr,
+                data=json.dumps(gps_data)
+            )
 
     @mainthread
     def on_status(self, stype, status):
@@ -109,4 +101,4 @@ class GpsTest(App):
 
 
 if __name__ == '__main__':
-    GpsTest().run()
+    SurfptzTagApp().run()
