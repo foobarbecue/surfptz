@@ -20,20 +20,21 @@ class SurfptzTagApp(App):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.dest_addr = None
+        self.send_to = 'Base'
         self._latest_latlon = None
     
     def set_dest_addr(self, dest):
-        self.dest_addr = self.dest_addrs[dest]
+        self.send_to = dest
     
     def post_to_base_api(self, endpoint: str):
-        url = f'{self.dest_addr}{endpoint}'
+        url = f'{self.dest_addrs[self.send_to]}{endpoint}'
         print(f'calling {url}')
         requests.post(url=url)
     
     def set_origin(self):
         print(f'setting origin to {self._latest_latlon}')
-        requests.post(url='http://10.128.0.1:5000/api/set_origin', data=self._latest_latlon)
+        requests.post(url=f'{self.dest_addrs[self.send_to]}/api/set_origin',
+                      data=self._latest_latlon)
     
     def request_android_permissions(self):
         """
@@ -92,9 +93,9 @@ class SurfptzTagApp(App):
         self._latest_latlon = {'lat': kwargs['lat'], 'lon': kwargs['lon']}
         timestamp = datetime.now().isoformat()
         gps_data = json.dumps({timestamp: kwargs})
-        if self.dest_addr:
+        if self.send_to:
             requests.post(
-                url=self.dest_addr,
+                url=self.send_to,
                 data=json.dumps(gps_data)
             )
 
