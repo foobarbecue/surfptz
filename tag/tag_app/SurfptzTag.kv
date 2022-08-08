@@ -8,7 +8,11 @@ BoxLayout:
 
     Label:
         text: app.gps_status
-        
+    
+    Button:
+        text: 'Initialize base'
+        on_press: app.initialize_base()
+    
     Button:
         text: 'Set Origin'
         on_press: app.set_origin()
@@ -20,8 +24,8 @@ BoxLayout:
         Label:
             text: 'Xmit to'
         Spinner:
-            text: 'None'
-            values: 'None','Base','Firebase'
+            text: 'Base'
+            values: 'Base','Firebase','None'
             on_text:
                 app.set_dest_addr(self.text)
                 print(f'sending to {app.dest_addr}')

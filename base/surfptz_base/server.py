@@ -11,12 +11,12 @@ camera_mgr = camera_manager.PanasonicCameraManager(identify_as='surfptz')
 camera_mgr.start()
 gimbal = BescorGimbal()
 
-@app.route('/api/initialize')
+@app.route('/api/initialize', methods=['POST', 'GET'])
 def initialize():
     gimbal.initialize()
     return '', 204
 
-@app.route('/api/angle')
+@app.route('/api/angle', methods=['POST', 'GET'])
 def angle():
     if 'pan' not in request.args:
         return "Missing query parameter 'pan'", 400
@@ -34,36 +34,36 @@ def angle():
     gimbal.goto(pitch_angle=tilt_angle, yaw_angle=pan_angle)
     return '', 204
 
-@app.route('/api/zoom_in')
+@app.route('/api/zoom_in', methods=['POST', 'GET'])
 def zoom_in_slow():
     camera_mgr.camera.zoom_in_slow()
     return '', 204
     
-@app.route('/api/zoom_out')
+@app.route('/api/zoom_out', methods=['POST', 'GET'])
 def zoom_out():
     camera_mgr.camera.zoom_out_slow()
     return '', 204
 
-@app.route('/api/zoom_stop')
+@app.route('/api/zoom_stop', methods=['POST', 'GET'])
 def zoom_stop():
     camera_mgr.camera.zoom_stop()
     return '', 204
 
-@app.route('/api/start_recording')
+@app.route('/api/start_recording', methods=['POST', 'GET'])
 def video_recstart():
     camera_mgr.camera.video_recstart()
     return '', 204
 
-@app.route('/api/set_declination')
+@app.route('/api/set_declination', methods=['POST', 'GET'])
 def set_declination():
     raise NotImplementedError
 
-@app.route('/api/get_angles')
+@app.route('/api/get_angles', methods=['POST', 'GET'])
 def get_angles():
     angles = gimbal.get_angles()
     return f"{angles}", 200
 
-@app.route('/api/relcoords')
+@app.route('/api/relcoords', methods=['POST', 'GET'])
 def relative_coordinates():
     """
     API route causing the gimbal to point at coordinates specified in meters.
@@ -92,7 +92,7 @@ def relative_coordinates():
     )
     return '', 204
 
-@app.route('/api/set_origin')
+@app.route('/api/set_origin', methods=['POST', 'GET'])
 def set_origin():
     if 'lat' not in request.args:
         return "Missing query parameter 'lat'", 400
@@ -112,7 +112,7 @@ def set_origin():
     gimbal.set_origin(lat=lat, lon=lon)
     return '', 204
 
-@app.route('/api/abscoords')
+@app.route('/api/abscoords', methods=['POST', 'GET'])
 def absolute_coordinates():
     if 'lat' not in request.args:
         return "Missing query parameter 'lat'", 400

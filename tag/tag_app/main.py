@@ -12,9 +12,9 @@ from datetime import datetime
 class SurfptzTagApp(App):
 
     gps_location = StringProperty()
-    gps_status = StringProperty('Click Start to get GPS location updates')
+    gps_status = StringProperty('Click Start to send GPS location updates')
     dest_addrs = {
-        'Base': 'http://10.128.0.1/api/relcoords',
+        'Base': 'http://10.128.0.1:5000/api/abscoords',
         'Firebase': 'https://surfptz-default-rtdb.firebaseio.com/.json'
     }
     
@@ -26,8 +26,13 @@ class SurfptzTagApp(App):
     def set_dest_addr(self, dest):
         self.dest_addr = self.dest_addrs[dest]
     
+    def initialize_base(self):
+        print(f'initializing base')
+        requests.post(url='http://10.128.0.1:5000/api/initialize')
+    
     def set_origin(self):
-        requests.post(url='http://10.128.0.1/api/set_origin', data=self._latest_latlon)
+        print(f'setting origin to {self._latest_latlon}')
+        requests.post(url='http://10.128.0.1:5000/api/set_origin', data=self._latest_latlon)
     
     def request_android_permissions(self):
         """
@@ -83,9 +88,9 @@ class SurfptzTagApp(App):
     def on_location(self, **kwargs):
         self.gps_location = '\n'.join([
             '{}={}'.format(k, v) for k, v in kwargs.items()])
-        self._latest_latlon = (kwargs['lat'], kwargs['lon'])
+        self._latest_latlon = {'lat': kwargs['lat'], 'lon': kwargs['lon']}
         timestamp = datetime.now().isoformat()
-        gps_data = json.dumps({timestamp : kwargs})
+        gps_data = json.dumps({timestamp: kwargs})
         if self.dest_addr:
             requests.post(
                 url=self.dest_addr,
