@@ -26,7 +26,7 @@ BoxLayout:
         BoxLayout:
             Button:
                 text: 'Start'
-                on_press: app.start_recording()
+                on_press: app.post_to_base_api('api/start_recording')
             Button:
                 text: 'Stop'
                 on_press: raise NotImplementedError
@@ -39,10 +39,10 @@ BoxLayout:
             text: 'Zoom'
         Button:
             text: 'In'
-            on_press: app.zoom_in()
+            on_press: app.post_to_base_api('api/zoom_in')
         Button:
             text: 'Out'
-            on_press: app.zoom_out()
+            on_press: app.post_to_base_api('api/zoom_out')
             
     BoxLayout:
         size_hint_y: None

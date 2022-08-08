@@ -14,7 +14,7 @@ class SurfptzTagApp(App):
     gps_location = StringProperty()
     gps_status = StringProperty('Click Start to send GPS location updates')
     dest_addrs = {
-        'Base': 'http://10.128.0.1:5000/api/abscoords',
+        'Base': 'http://10.128.0.1:5000/',
         'Firebase': 'https://surfptz-default-rtdb.firebaseio.com/.json'
     }
     
@@ -25,6 +25,11 @@ class SurfptzTagApp(App):
     
     def set_dest_addr(self, dest):
         self.dest_addr = self.dest_addrs[dest]
+    
+    def post_to_base_api(self, endpoint: str):
+        url = f'{self.dest_addr}{endpoint}'
+        print(f'calling {url}')
+        requests.post(url=url)
     
     def initialize_base(self):
         print(f'initializing base')
