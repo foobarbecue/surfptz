@@ -31,10 +31,6 @@ class SurfptzTagApp(App):
         print(f'calling {url}')
         requests.post(url=url)
     
-    def initialize_base(self):
-        print(f'initializing base')
-        requests.post(url='http://10.128.0.1:5000/api/initialize')
-    
     def set_origin(self):
         print(f'setting origin to {self._latest_latlon}')
         requests.post(url='http://10.128.0.1:5000/api/set_origin', data=self._latest_latlon)

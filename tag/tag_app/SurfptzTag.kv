@@ -11,7 +11,7 @@ BoxLayout:
     
     Button:
         text: 'Initialize base'
-        on_press: app.initialize_base()
+        on_press: app.post_to_base_api('api/initialize')
     
     Button:
         text: 'Set Origin'
