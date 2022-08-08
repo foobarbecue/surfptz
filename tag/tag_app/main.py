@@ -76,7 +76,6 @@ class SurfptzTagApp(App):
         if platform == "android":
             print("gps.py: Android detected. Requesting permissions")
             self.request_android_permissions()
-            self.start(1000,0)
 
         return Builder.load_file('SurfptzTag.kv')
 
@@ -95,7 +94,7 @@ class SurfptzTagApp(App):
         gps_data = json.dumps({timestamp: kwargs})
         if self.send_to:
             requests.post(
-                url=self.send_to,
+                url=f'{self.dest_addrs[self.send_to]}api/abs_coords',
                 data=json.dumps(gps_data)
             )
 
