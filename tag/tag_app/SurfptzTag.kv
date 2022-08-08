@@ -22,6 +22,33 @@ BoxLayout:
         height: '48dp'
         padding: '4dp'
         Label:
+            text: 'Rec'
+        BoxLayout:
+            Button:
+                text: 'Start'
+                on_press: app.start_recording()
+            Button:
+                text: 'Stop'
+                on_press: raise NotImplementedError
+    
+    BoxLayout:
+        size_hint_y: None
+        height: '48dp'
+        padding: '4dp'
+        Label:
+            text: 'Zoom'
+        Button:
+            text: 'In'
+            on_press: app.zoom_in()
+        Button:
+            text: 'Out'
+            on_press: app.zoom_out()
+            
+    BoxLayout:
+        size_hint_y: None
+        height: '48dp'
+        padding: '4dp'
+        Label:
             text: 'Xmit to'
         Spinner:
             text: 'Base'
