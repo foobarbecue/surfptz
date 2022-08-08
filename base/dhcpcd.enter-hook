@@ -5,5 +5,7 @@ then
     exec 1>> /tmp/hooklog.txt
     exec 2>&1
     echo `date`
-    sudo -u aaron /home/aaron/start_surfptz.sh 
+    rfcomm release 00:0C:BF:16:58:31
+    rfcomm bind rfcomm0 00:0C:BF:16:58:31
+    sudo -u aaron /home/aaron/start_surfptz.sh
 fi
