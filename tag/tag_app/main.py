@@ -33,7 +33,7 @@ class SurfptzTagApp(App):
     
     def set_origin(self):
         print(f'setting origin to {self._latest_latlon}')
-        requests.post(url=f'{self.dest_addrs[self.send_to]}/api/set_origin',
+        requests.post(url=f'{self.dest_addrs[self.send_to]}api/set_origin',
                       data=self._latest_latlon)
     
     def request_android_permissions(self):
@@ -90,13 +90,18 @@ class SurfptzTagApp(App):
         self.gps_location = '\n'.join([
             '{}={}'.format(k, v) for k, v in kwargs.items()])
         self._latest_latlon = {'lat': kwargs['lat'], 'lon': kwargs['lon']}
-        timestamp = datetime.now().isoformat()
-        gps_data = json.dumps({timestamp: kwargs})
+        # timestamp = datetime.now().isoformat()
+        # gps_data = json.dumps({timestamp: kwargs})
         if self.send_to:
-            requests.post(
-                url=f'{self.dest_addrs[self.send_to]}api/abs_coords',
-                data=json.dumps(gps_data)
-            )
+            try:
+                res = requests.post(
+                    url=f'{self.dest_addrs[self.send_to]}api/abscoords',
+                    data=self._latest_latlon,
+                    params=self._latest_latlon
+                )
+                print(res.text)
+            except:
+                print('Failed sending location')
 
     @mainthread
     def on_status(self, stype, status):
