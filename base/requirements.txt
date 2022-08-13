@@ -1,3 +1,4 @@
 witmotion
 gpiozero
 pyproj
+upnpclient

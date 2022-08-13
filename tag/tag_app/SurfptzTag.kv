@@ -29,7 +29,7 @@ BoxLayout:
                 on_press: app.post_to_base_api('api/start_recording')
             Button:
                 text: 'Stop'
-                on_press: raise NotImplementedError
+                on_press: app.post_to_base_api('api/stop_recording')
     
     BoxLayout:
         size_hint_y: None

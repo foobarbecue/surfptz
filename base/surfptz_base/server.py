@@ -54,6 +54,11 @@ def video_recstart():
     camera_mgr.camera.video_recstart()
     return '', 204
 
+@app.route('/api/stop_recording', methods=['POST', 'GET'])
+def video_recstop():
+    camera_mgr.camera.video_recstop()
+    return '', 204
+
 @app.route('/api/set_declination', methods=['POST', 'GET'])
 def set_declination():
     raise NotImplementedError
