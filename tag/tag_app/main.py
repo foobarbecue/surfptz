@@ -34,7 +34,7 @@ class SurfptzTagApp(App):
     def set_origin(self):
         print(f'setting origin to {self._latest_latlon}')
         requests.post(url=f'{self.dest_addrs[self.send_to]}api/set_origin',
-                      data=self._latest_latlon)
+                      data=self._latest_latlon) 
     
     def request_android_permissions(self):
         """
@@ -114,7 +114,26 @@ class SurfptzTagApp(App):
     def on_resume(self):
         gps.start(1000, 0)
         pass
+    
+    """
+    Functions for debugging below here
+    """
+    def set_origin_zero(self):
+        print(f'setting origin to 0, 0')
+        requests.post(url=f'{self.dest_addrs[self.send_to]}api/set_origin',
+                      data=self._latest_latlon)
 
-
+    def point_at_abscoords(self, lat, lon):
+        if self.send_to:
+            try:
+                res = requests.post(
+                    url=f'{self.dest_addrs[self.send_to]}api/abscoords',
+                    data={'lat':lat,'lon':lon},
+                    params={'lat':lat,'lon':lon}
+                )
+                print(res.text)
+            except:
+                print('Failed sending location')
+                
 if __name__ == '__main__':
     SurfptzTagApp().run()

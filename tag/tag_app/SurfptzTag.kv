@@ -16,25 +16,35 @@ BoxLayout:
     Button:
         text: 'Set Origin'
         on_press: app.set_origin()
-        
+
     BoxLayout:
-        size_hint_y: None
-        height: '48dp'
-        padding: '4dp'
+        Button
+            text: 'Set0'
+            on_press: app.set_origin_zero()
+        Button:
+            text: 'N'
+            on_press: app.point_at(1.0,0.0)
+        Button:
+            text: 'E'
+            on_press: app.point_at(0.0,1.0)            
+        Button:
+            text: 'S'
+            on_press: app.point_at(-1.0,0.0)
+        Button:
+            on_press: app.point_at(0.0,-1.0)        
+            text: 'W'
+
+    BoxLayout:
         Label:
             text: 'Rec'
-        BoxLayout:
-            Button:
-                text: 'Start'
-                on_press: app.post_to_base_api('api/start_recording')
-            Button:
-                text: 'Stop'
-                on_press: app.post_to_base_api('api/stop_recording')
+        Button:
+            text: 'Start'
+            on_press: app.post_to_base_api('api/start_recording')
+        Button:
+            text: 'Stop'
+            on_press: app.post_to_base_api('api/stop_recording')
     
     BoxLayout:
-        size_hint_y: None
-        height: '48dp'
-        padding: '4dp'
         Label:
             text: 'Zoom'
         Button:
@@ -45,9 +55,6 @@ BoxLayout:
             on_press: app.post_to_base_api('api/zoom_out')
             
     BoxLayout:
-        size_hint_y: None
-        height: '48dp'
-        padding: '4dp'
         Label:
             text: 'Xmit to'
         Spinner:
