@@ -43,27 +43,32 @@ class BescorGimbal:
         logger.info('Disconnecting from IMU')
         self.imu.close()
 
+    def log_gimbal_and_sleep(self, total_time_s, interval_s=0.5):
+        for ind in range(0, math.ceil(total_time_s / interval_s)):
+            logger.info(f'yaw: {self.imu.last_yaw}, pitch: {self.imu.last_pitch}')
+            sleep(interval_s)
+
     def initialize(self):
 
         # PITCH
         logger.info('Finding pitch range')
         self.pitch_relays[0].on()
-        sleep(20)
+        self.log_gimbal_and_sleep(20)
         self.pitch_relays[0].off()
         self._imu_pitch_at_min = self.imu.last_pitch
         self.pitch_relays[1].on()
-        sleep(20)
+        self.log_gimbal_and_sleep(20)
         self.pitch_relays[1].off()
         self._imu_pitch_at_max = self.imu.last_pitch
 
         # YAW
         logger.info('Finding yaw range')
         self.yaw_relays[1].on()
-        sleep(50)
+        self.log_gimbal_and_sleep(50)
         self.yaw_relays[1].off()
         self._imu_yaw_at_max_cw = self.imu.last_yaw
         self.yaw_relays[0].on()
-        sleep(50)
+        self.log_gimbal_and_sleep(50)
         self.yaw_relays[0].off()
         self._imu_yaw_at_max_ccw = self.imu.last_yaw
 
