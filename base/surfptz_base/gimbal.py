@@ -7,6 +7,12 @@ from pyproj import Transformer
 
 logger: logging.Logger = logging.getLogger(__name__)
 
+def to_0_360(cls, angle):
+    if angle > 0:
+        return angle + 360
+    else:
+        return angle
+
 class BescorGimbal:
     """
     This gimbal class is for use with this combination of products:
@@ -45,7 +51,7 @@ class BescorGimbal:
 
     def log_gimbal_and_sleep(self, total_time_s, interval_s=0.5):
         for ind in range(0, math.ceil(total_time_s / interval_s)):
-            logger.info(f'yaw: {self.imu.last_yaw}, pitch: {self.imu.last_pitch}')
+            logger.info(f'yaw: {to_0_360(self.imu.last_yaw)}, pitch: {self.imu.last_pitch}')
             sleep(interval_s)
 
     def initialize(self):
@@ -66,11 +72,11 @@ class BescorGimbal:
         self.yaw_relays[1].on()
         self.log_gimbal_and_sleep(50)
         self.yaw_relays[1].off()
-        self._imu_yaw_at_max_cw = self.imu.last_yaw
+        self._imu_yaw_at_max_cw = to_0_360(self.imu.last_yaw)
         self.yaw_relays[0].on()
         self.log_gimbal_and_sleep(50)
         self.yaw_relays[0].off()
-        self._imu_yaw_at_max_ccw = self.imu.last_yaw
+        self._imu_yaw_at_max_ccw = to_0_360(self.imu.last_yaw)
 
     def set_origin(self, lat, lon):
         self._origin_latlon = (lat, lon)
@@ -107,7 +113,7 @@ class BescorGimbal:
         desired_yaw = yaw_angle
         desired_pitch = pitch_angle
 
-        z_angle = self.imu.last_yaw
+        z_angle = to_0_360(self.imu.last_yaw)
         z_err = z_angle - desired_yaw
         if abs(z_err) > self.deadband:
             if z_err > 0:
