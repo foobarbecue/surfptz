@@ -33,6 +33,7 @@ class BescorGimbal:
         self.update_interval: float = 0.5
         self.yaw_target_reached: bool = True
         self.pitch_target_reached: bool = True
+        self._declination = 11.46 # San Clemente 2022 magnetic declination
         self._imu_yaw_at_max_cw = None
         self._imu_yaw_at_max_ccw = None
         self._imu_pitch_at_max = None
@@ -49,10 +50,20 @@ class BescorGimbal:
         logger.info('Disconnecting from IMU')
         self.imu.close()
 
+    def get_bearing(self):
+        return to_0_360(self.imu.last_yaw) + self._declination
+    
     def log_gimbal_and_sleep(self, total_time_s, interval_s=0.5):
         for ind in range(0, math.ceil(total_time_s / interval_s)):
             logger.info(f'yaw: {to_0_360(self.imu.last_yaw)}, pitch: {self.imu.last_pitch}')
             sleep(interval_s)
+
+    def is_in_yaw_deadzone(self, angle) -> bool:
+        """
+        The Bescor gimbal cannot get to about 10 degrees of the circle.
+        This function returns False if we are in that "deadzone"
+        """
+        return self._imu_yaw_at_max_cw < angle < self._imu_yaw_at_max_ccw
 
     def initialize(self):
 
@@ -91,7 +102,11 @@ class BescorGimbal:
         while not (self.yaw_target_reached and self.pitch_target_reached):
             # Check that there is IMU data when we command any movement
             if self.imu.last_a:
-                self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
+                # Check if the gimbal can get to this yaw
+                if self.is_in_yaw_deadzone(yaw_angle):
+                    self.control(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
+                else:
+                    logger.info(f"desired yaw is in deadzone")
             else:
                 logger.info(f"no imu data")
                 self.stop()
@@ -151,8 +166,8 @@ class BescorGimbal:
         # TODO incorporate magnetometer
         return self.imu.get_angle()
     
-    def set_declination(self):
-        raise NotImplementedError
+    def set_declination(self, declination):
+        self._declination = declination
 
     @staticmethod
     def _xy_to_az(x: float, y: float) -> float:
