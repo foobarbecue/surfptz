@@ -23,15 +23,15 @@ BoxLayout:
             on_press: app.set_origin_zero()
         Button:
             text: 'N'
-            on_press: app.point_at(1.0,0.0)
+            on_press: app.point_at_abscoords(1.0,0.0)
         Button:
             text: 'E'
-            on_press: app.point_at(0.0,1.0)            
+            on_press: app.point_at_abscoords(0.0,1.0)
         Button:
             text: 'S'
-            on_press: app.point_at(-1.0,0.0)
+            on_press: app.point_at_abscoords(-1.0,0.0)
         Button:
-            on_press: app.point_at(0.0,-1.0)        
+            on_press: app.point_at_abscoords(0.0,-1.0)        
             text: 'W'
 
     BoxLayout:

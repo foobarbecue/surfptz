@@ -121,7 +121,8 @@ class SurfptzTagApp(App):
     def set_origin_zero(self):
         print(f'setting origin to 0, 0')
         requests.post(url=f'{self.dest_addrs[self.send_to]}api/set_origin',
-                      data={'lat':0,'lon':0})
+                      data={'lat':0,'lon':0},
+                      params={'lat':0,'lon':0})
 
     def point_at_abscoords(self, lat, lon):
         if self.send_to:
