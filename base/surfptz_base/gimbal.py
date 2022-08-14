@@ -63,7 +63,12 @@ class BescorGimbal:
         The Bescor gimbal cannot get to about 10 degrees of the circle.
         This function returns False if we are in that "deadzone"
         """
-        return self._imu_yaw_at_max_cw < angle < self._imu_yaw_at_max_ccw
+        if self._imu_yaw_at_max_cw < self._imu_yaw_at_max_ccw:
+            return self._imu_yaw_at_max_cw < angle < self._imu_yaw_at_max_ccw
+        else:
+            #There is a zero-crossing in the deadzone (e.g. CW limit 355, CCW 5)
+            return (self._imu_yaw_at_max_cw < angle) or\
+                   (angle < self._imu_yaw_at_max_ccw)
 
     def initialize(self):
 
