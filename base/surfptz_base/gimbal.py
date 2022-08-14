@@ -8,7 +8,7 @@ from pyproj import Transformer
 logger: logging.Logger = logging.getLogger(__name__)
 
 def to_0_360(angle):
-    if angle > 0:
+    if angle < 0:
         return angle + 360
     else:
         return angle
