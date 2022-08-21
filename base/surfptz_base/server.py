@@ -134,5 +134,5 @@ def absolute_coordinates():
         return "Query parameter 'lon' should be a number", 400
     logging.debug(f'lat={lat} lon={lon}')
 
-    gimbal.set_origin(lat=lat, lon=lon)
+    gimbal.point_at_abs_coords(lat=lat, lon=lon)
     return '', 204
