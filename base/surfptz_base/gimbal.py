@@ -94,6 +94,13 @@ class BescorGimbal:
         self.yaw_relays[0].off()
         self._imu_yaw_at_max_ccw = to_0_360(self.imu.last_yaw)
 
+        logger.info(f'Pitch range found to be'
+                    f'{self._imu_pitch_at_min} '
+                    f'to {self._imu_pitch_at_max}')
+        logger.info(f'Yaw max found to be'
+                    f'{self._imu_yaw_at_max_cw} clockwise, and '
+                    f'to {self._imu_yaw_at_max_ccw} counterclockwise.')
+
     def set_origin(self, lat, lon):
         self._origin_latlon = (lat, lon)
 
@@ -212,6 +219,9 @@ class BescorGimbal:
             yaw_angle += 360
         distance = math.sqrt(northing ** 2 + easting ** 2 + elevation ** 2)
         pitch_angle = math.asin(elevation / distance)
+        logger.info(f'Given rel coords '
+                    f'N: {northing} E: {easting} El:{elevation}, '
+                    f'going to point at yaw: {yaw_angle} pitch: {pitch_angle}')
         self.goto(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
 
     def point_at_abs_coords(self, lat: float, lon: float) -> None:
