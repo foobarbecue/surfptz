@@ -184,21 +184,23 @@ class BescorGimbal:
             az += 360
         return az
     
-    @staticmethod
     def calculate_relcoords(self, lat: float, lon: float) -> Tuple[float, float]:
         """
         Determine the N, E offset in meters from origin_latlon to latest_latlon
         """
 
         # Todo cache this Transformer instead of creating every time
-        xfrmr = Transformer(4326,f"+proj=tmerc +lat_0={self._origin_latlon[0]}"
-                                 f" +lon_0={self._origin_latlon[1]}")
+        xfrmr = Transformer.from_crs(4326,f"+proj=tmerc "
+                                          f"+lat_0={self._origin_latlon[0]} "
+                                          f"+lon_0={self._origin_latlon[1]}")
 
         # Convert origin to transverse mercator centered on origin
-        origin_m = xfrmr(*self._origin_latlon)
+        origin_m = xfrmr.transform(self._origin_latlon[1],
+                                   self._origin_latlon[0])
+        logger.info(f'origin: origin_m')
 
         # Convert latest_latlon to same
-        new_m = xfrmr(lat, lon)
+        new_m = xfrmr.transform(lon, lat)
 
         # Subtract them
         return (origin_m[0] - new_m[0], origin_m[1] - new_m[1])
@@ -214,6 +216,8 @@ class BescorGimbal:
 
     def point_at_abs_coords(self, lat: float, lon: float) -> None:
         n, e = self.calculate_relcoords(lat=lat, lon=lon)
+        logger.info(f'Calculated northing {n}, easting {e} from'
+                    f' rel lat {lat} lon {lon}')
         #TODO declination
         #TODO elevation
         self.point_at_rel_coords(northing=n, easting=e, elevation=0)
