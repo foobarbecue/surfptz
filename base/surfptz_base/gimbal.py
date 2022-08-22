@@ -64,7 +64,9 @@ class BescorGimbal:
         This function returns False if we are in that "deadzone"
         """
         if self._imu_yaw_at_max_cw < self._imu_yaw_at_max_ccw:
-            return self._imu_yaw_at_max_cw < angle < self._imu_yaw_at_max_ccw
+            return not (self._imu_yaw_at_max_cw
+                        < angle
+                        < self._imu_yaw_at_max_ccw)
         else:
             #There is a zero-crossing in the deadzone (e.g. CW limit 355, CCW 5)
             return (self._imu_yaw_at_max_cw < angle) or\
@@ -97,12 +99,12 @@ class BescorGimbal:
         logger.info(f'Pitch range found to be'
                     f'{self._imu_pitch_at_min} '
                     f'to {self._imu_pitch_at_max}')
-        logger.info(f'Yaw max found to be'
+        logger.info(f'Yaw max found to be: '
                     f'{self._imu_yaw_at_max_cw} clockwise, and '
                     f'to {self._imu_yaw_at_max_ccw} counterclockwise.')
 
-    def set_origin(self, lat, lon):
-        self._origin_latlon = (lat, lon)
+    def set_origin(self, lon, lat):
+        self._origin_latlon = (lon, lat)
 
     def goto(
             self,
@@ -140,7 +142,7 @@ class BescorGimbal:
         desired_yaw = yaw_angle
         desired_pitch = pitch_angle
 
-        z_angle = to_0_360(self.imu.last_yaw)
+        z_angle = self.get_bearing()
         z_err = z_angle - desired_yaw
         if abs(z_err) > self.deadband:
             if z_err > 0:
@@ -186,7 +188,7 @@ class BescorGimbal:
         """
         Given relative coordinates, return a 0 to 360 azimuth angle
         """
-        az = math.degrees(math.atan2(y, x))
+        az = math.degrees(math.atan2(x, y))
         if az < 0:
             az += 360
         return az
@@ -210,22 +212,26 @@ class BescorGimbal:
         new_m = xfrmr.transform(lon, lat)
 
         # Subtract them
-        return (origin_m[0] - new_m[0], origin_m[1] - new_m[1])
+        return (new_m[1]- origin_m[1], new_m[0] - origin_m[0])
 
-    def point_at_rel_coords(self, northing: float, easting: float, elevation: float) -> None:
+    def point_at_rel_coords(self, northing: float, easting: float, elevation=None) -> None:
         yaw_angle = self._xy_to_az(x=easting, y=northing)
         yaw_angle -= self._declination
         if yaw_angle < 0:
             yaw_angle += 360
-        distance = math.sqrt(northing ** 2 + easting ** 2 + elevation ** 2)
-        pitch_angle = math.asin(elevation / distance)
+        if elevation:
+            distance = math.sqrt(northing ** 2 + easting ** 2 + elevation ** 2)
+            pitch_angle = math.asin(elevation / distance)
+        else:
+            # If we weren't given an elevation, leave pitch where it is
+            pitch_angle = self.imu.last_pitch
         logger.info(f'Given rel coords '
                     f'N: {northing} E: {easting} El:{elevation}, '
                     f'going to point at yaw: {yaw_angle} pitch: {pitch_angle}')
         self.goto(yaw_angle=yaw_angle, pitch_angle=pitch_angle)
 
     def point_at_abs_coords(self, lat: float, lon: float) -> None:
-        n, e = self.calculate_relcoords(lat=lat, lon=lon)
+        e, n = self.calculate_relcoords(lat=lat, lon=lon)
         logger.info(f'Calculated northing {n}, easting {e} from'
                     f' rel lat {lat} lon {lon}')
         #TODO declination
